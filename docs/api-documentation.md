@@ -1,15 +1,32 @@
+---
+products: all
+---
+
 # API documentation
 
-:::caution
+The Airbyte API provides a way for developers to programmatically interact with Airbyte. It is available for all Airbyte products: Airbyte OSS, Cloud & Self-Hosted Enterprise.
 
-For Airbyte Open-Source you don't need the API Token for Authentication!
-All endpoints are possible to access using the API without it. **Note**: Airbyte Cloud does not currently support API access. 
+Our API is a reliable, easy-to-use interface for programmatically controlling the Airbyte platform. It can be extended to:
 
+- Enable users to control Airbyte programmatically and use with Orchestration tools (ex: Airflow)
+- Enable [Powered by Airbyte](https://reference.airbyte.com/reference/powered-by-airbyte)
+
+## Configuring API Access
+
+View our documentation [here](./using-airbyte/configuring-api-access.md) to learn how to start using the Airbyte API.
+
+## Using the Airbyte API
+
+Navigate to our full API documentation to learn how to retrieve your access token, make API requests, and manage resources like sources, destinations, and workspaces.
+
+Our full API documentation is located here: [api.airbyte.com](https://reference.airbyte.com/reference/getting-started).
+
+:::note
+Only for OSS users, to access the API in the OSS edition, you need to use the `/api/public/v1` path prefix. (ex: retrieve list of workspaces with `curl http://localhost:8000/api/public/v1/workspaces`)
 :::
 
-Our Configuration API is still in alpha and might change. You won’t lose any functionality, but you may need to update your code to catch up to any backwards incompatible changes in the API.
+## Configuration API (Deprecated)
 
-**Check it out** [**here**](https://airbyte-public-api-docs.s3.us-east-2.amazonaws.com/rapidoc-api-docs.html)**.** It is still rudimentary, and we will improve in the next couple of weeks.
+The configuration API is now deprecated and no longer supported. It is an internal API that is designed for communications between different Airbyte components ratther than managing your Airbyte workspace.
 
-Don't hesitate to ask us on [Slack](https://slack.airbyte.io), if you have any questions about it.
-
+Users utilize the Config API at their own risk. This API is utilized internally by the Airbyte Engineering team and may be modified in the future if the need arises.

@@ -1,11 +1,14 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 import json
 from typing import Any, Dict
 from unittest import mock
 from unittest.mock import Mock
+
+from destination_rabbitmq.destination import DestinationRabbitmq
+from pika.spec import Queue
 
 from airbyte_cdk.models import AirbyteMessage, Status, Type
 from airbyte_cdk.models.airbyte_protocol import (
@@ -17,8 +20,7 @@ from airbyte_cdk.models.airbyte_protocol import (
     DestinationSyncMode,
     SyncMode,
 )
-from destination_rabbitmq.destination import DestinationRabbitmq
-from pika.spec import Queue
+
 
 config = {
     "host": "test.rabbitmq",

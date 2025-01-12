@@ -1,11 +1,12 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 
-from airbyte_cdk.models import SyncMode
 from pytest import fixture
 from source_kyriba.source import IncrementalKyribaStream
+
+from airbyte_cdk.models import SyncMode
 
 from .test_streams import config
 

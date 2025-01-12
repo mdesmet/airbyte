@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 from pathlib import Path
@@ -35,6 +35,17 @@ def invalid_config(read_file):
 
 
 @pytest.fixture
+def invalid_reader_options_config(read_file):
+    return {
+        "dataset_name": "test",
+        "format": "jsonl",
+        "url": "https://airbyte.com",
+        "reader_options": '["encoding"]',
+        "provider": {"storage": "HTTPS"},
+    }
+
+
+@pytest.fixture
 def config_dropbox_link():
     return {
         "dataset_name": "test",
@@ -64,3 +75,17 @@ def absolute_path():
 @pytest.fixture
 def test_files():
     return "../integration_tests/sample_files"
+
+
+@pytest.fixture
+def test_read_config():
+    return {
+        "dataset_name": "integrationTestFile",
+        "format": "csv",
+        "url": "https://storage.googleapis.com/covid19-open-data/v2/latest/epidemiology.csv",
+        "provider": {
+            "storage": "HTTPS",
+            "reader_impl": "gcsfs",
+            "user_agent": False,
+        },
+    }

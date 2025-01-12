@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 # This file contains the longest unit tests. This spawns a local fauna container and
@@ -11,6 +11,10 @@ import time
 from datetime import datetime
 
 import docker
+from faunadb import query as q
+from source_fauna import SourceFauna
+from test_util import CollectionConfig, DeletionsConfig, FullConfig, config, mock_logger, ref
+
 from airbyte_cdk.models import (
     AirbyteConnectionStatus,
     AirbyteStream,
@@ -21,9 +25,6 @@ from airbyte_cdk.models import (
     SyncMode,
     Type,
 )
-from faunadb import query as q
-from source_fauna import SourceFauna
-from test_util import CollectionConfig, DeletionsConfig, FullConfig, config, mock_logger, ref
 
 
 def setup_database(source: SourceFauna):
@@ -86,6 +87,16 @@ def setup_database(source: SourceFauna):
                     {"field": "ts"},
                     {"field": "ref"},
                 ],
+            }
+        ),
+    )
+    # This index just *existing* used to crash the connector, because it has no
+    # terms or values.
+    source.client.query(
+        q.create_index(
+            {
+                "name": "breaks_things",
+                "source": q.collection("foo"),
             }
         ),
     )
@@ -160,6 +171,31 @@ def setup_container():
         raise
 
 
+def run_discover_test(source: SourceFauna, logger):
+    # See `test_util.py` for these values
+    catalog = source.discover(
+        logger,
+        {
+            "secret": "secret",
+            "domain": "localhost",
+            "port": 9000,
+            "scheme": "http",
+            "collection": {
+                "page_size": 64,
+                "deletions": {
+                    "deletion_mode": "ignore",
+                },
+            },
+        },
+    )
+    assert len(catalog.streams) == 1
+    stream = catalog.streams[0]
+    assert stream.name == "foo"
+    assert stream.supported_sync_modes == [SyncMode.full_refresh, SyncMode.incremental]
+    assert stream.source_defined_cursor is True
+    assert stream.default_cursor_field == ["ts"]
+
+
 def run_add_removes_test(source: SourceFauna, logger, stream: ConfiguredAirbyteStream):
     source._setup_client(FullConfig.localhost())
     source.client.query(q.create(ref(105, "foo"), {"data": {"a": 10}}))
@@ -228,7 +264,7 @@ def run_removes_order_test(source: SourceFauna, logger, stream: ConfiguredAirbyt
 
 def run_general_remove_test(source: SourceFauna, logger):
     stream = ConfiguredAirbyteStream(
-        stream=AirbyteStream(name="deletions_test", json_schema={}),
+        stream=AirbyteStream(name="deletions_test", json_schema={}, supported_sync_modes=[SyncMode.incremental, SyncMode.full_refresh]),
         sync_mode=SyncMode.incremental,
         destination_sync_mode=DestinationSyncMode.append_dedup,
     )
@@ -477,8 +513,9 @@ def run_updates_test(db_data, source: SourceFauna, logger, catalog: ConfiguredAi
 
 def run_test(db_data, source: SourceFauna):
     logger = mock_logger()
+    run_discover_test(source, logger)
     stream = ConfiguredAirbyteStream(
-        stream=AirbyteStream(name="foo", json_schema={}),
+        stream=AirbyteStream(name="foo", json_schema={}, supported_sync_modes=[SyncMode.incremental, SyncMode.full_refresh]),
         sync_mode=SyncMode.incremental,
         destination_sync_mode=DestinationSyncMode.append_dedup,
     )
@@ -489,7 +526,7 @@ def run_test(db_data, source: SourceFauna):
     run_general_remove_test(source, logger)
 
 
-def test_incremental_reads():
+def test_database():
     container, db_data, source = setup_container()
 
     try:

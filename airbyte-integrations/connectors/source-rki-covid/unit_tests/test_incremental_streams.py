@@ -1,11 +1,12 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 
-from airbyte_cdk.models import SyncMode
 from pytest import fixture
 from source_rki_covid.source import IncrementalRkiCovidStream
+
+from airbyte_cdk.models import SyncMode
 
 
 @fixture

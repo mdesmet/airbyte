@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 
@@ -8,6 +8,8 @@ from datetime import datetime
 from typing import Dict, Generator
 
 import boto3
+from botocore.exceptions import ClientError
+
 from airbyte_cdk.logger import AirbyteLogger
 from airbyte_cdk.models import (
     AirbyteCatalog,
@@ -20,7 +22,6 @@ from airbyte_cdk.models import (
     Type,
 )
 from airbyte_cdk.sources.source import Source
-from botocore.exceptions import ClientError
 
 
 class SourceAmazonSqs(Source):
