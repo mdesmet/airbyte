@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 import json
@@ -12,6 +12,8 @@ from typing import Dict
 from unittest.mock import MagicMock
 
 import pytest
+from destination_sqlite import DestinationSqlite
+
 from airbyte_cdk.models import (
     AirbyteMessage,
     AirbyteRecordMessage,
@@ -23,7 +25,6 @@ from airbyte_cdk.models import (
     SyncMode,
     Type,
 )
-from destination_sqlite import DestinationSqlite
 
 
 @pytest.fixture(autouse=True)

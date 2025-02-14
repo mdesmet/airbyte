@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 """
@@ -7,11 +7,13 @@ Test case, when custom Export, ExportSchema properties contains names,
 that will conflict in further data normalization, like:
 `userName` and `username`
 """
+
 from unittest.mock import MagicMock
 
 import pytest
-from airbyte_cdk.models import SyncMode
 from source_mixpanel.streams import Export
+
+from airbyte_cdk.models import SyncMode
 
 from .utils import get_url_to_mock, setup_response
 

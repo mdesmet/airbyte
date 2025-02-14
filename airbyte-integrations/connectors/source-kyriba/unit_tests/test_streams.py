@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 from http import HTTPStatus
@@ -7,8 +7,9 @@ from unittest.mock import MagicMock
 
 import pytest
 import requests
-from airbyte_cdk.sources.streams.http.requests_native_auth import TokenAuthenticator
 from source_kyriba.source import KyribaClient, KyribaStream
+
+from airbyte_cdk.sources.streams.http.requests_native_auth import TokenAuthenticator
 
 
 @pytest.fixture

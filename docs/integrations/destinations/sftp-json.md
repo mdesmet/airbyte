@@ -13,11 +13,11 @@ Each file will contain a collection of `json` objects which correspond directly 
 
 #### Features
 
-| Feature | Supported |
-| :--- | :--- |
-| Full Refresh Sync | Yes |
-| Incremental - Append Sync | Yes |
-| Namespaces | No |
+| Feature                   | Supported |
+| :------------------------ | :-------- |
+| Full Refresh Sync         | Yes       |
+| Incremental - Append Sync | Yes       |
+| Namespaces                | No        |
 
 #### Performance considerations
 
@@ -34,3 +34,17 @@ The `filename` **should not** have an extension in the configuration, as `.jsonl
 If `destination_path` is set to `/myfolder/files` and `filename` is set to `mydata`, the resulting file will be `/myfolder/files/mydata.jsonl`.
 
 These files can then be accessed by creating an SFTP connection to the server and navigating to the `destination_path`.
+
+## Changelog
+
+<details>
+  <summary>Expand to review</summary>
+
+| Version | Date       | Pull Request                                           | Subject                       |
+| :------ | :--------- | :----------------------------------------------------- | :---------------------------- |
+| 0.2.2 | 2025-02-08 | [53405](https://github.com/airbytehq/airbyte/pull/53405) | Update dependencies |
+| 0.2.1 | 2025-02-01 | [52883](https://github.com/airbytehq/airbyte/pull/52883) | Update dependencies |
+| 0.2.0 | 2024-10-14 | [46873](https://github.com/airbytehq/airbyte/pull/46873) | Migrated to Poetry and Airbyte Base Image |
+| 0.1.0 | 2022-11-24 | [4924](https://github.com/airbytehq/airbyte/pull/4924) | 🎉 New Destination: SFTP JSON |
+
+</details>

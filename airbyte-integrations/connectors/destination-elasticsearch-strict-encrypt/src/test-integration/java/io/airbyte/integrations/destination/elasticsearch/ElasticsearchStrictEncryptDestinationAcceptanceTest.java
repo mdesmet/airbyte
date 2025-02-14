@@ -1,33 +1,46 @@
 /*
- * Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+ * Copyright (c) 2023 Airbyte, Inc., all rights reserved.
  */
 
 package io.airbyte.integrations.destination.elasticsearch;
 
+import static org.junit.Assert.assertEquals;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import io.airbyte.cdk.integrations.standardtest.destination.DestinationAcceptanceTest;
+import io.airbyte.cdk.integrations.standardtest.destination.comparator.AdvancedTestDataComparator;
+import io.airbyte.cdk.integrations.standardtest.destination.comparator.TestDataComparator;
 import io.airbyte.commons.json.Jsons;
-import io.airbyte.integrations.standardtest.destination.DestinationAcceptanceTest;
-import io.airbyte.integrations.standardtest.destination.comparator.AdvancedTestDataComparator;
-import io.airbyte.integrations.standardtest.destination.comparator.TestDataComparator;
+import io.airbyte.configoss.StandardCheckConnectionOutput.Status;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
 public class ElasticsearchStrictEncryptDestinationAcceptanceTest extends DestinationAcceptanceTest {
 
-  private final ObjectMapper mapper = new ObjectMapper();
   private static ElasticsearchContainer container;
+  private static final String IMAGE_NAME = "docker.elastic.co/elasticsearch/elasticsearch:8.3.3";
+  private final ObjectMapper mapper = new ObjectMapper();
 
   @BeforeAll
   public static void beforeAll() {
 
-    container = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.1")
-        .withPassword("MagicWord");
+    container = new ElasticsearchContainer(IMAGE_NAME)
+        .withEnv("discovery.type", "single-node")
+        .withEnv("network.host", "0.0.0.0")
+        .withEnv("logger.org.elasticsearch", "INFO")
+        .withEnv("ingest.geoip.downloader.enabled", "false")
+        .withExposedPorts(9200)
+        .withPassword("s3cret");
 
     container.start();
   }
@@ -54,11 +67,6 @@ public class ElasticsearchStrictEncryptDestinationAcceptanceTest extends Destina
   }
 
   @Override
-  protected boolean supportsNormalization() {
-    return false;
-  }
-
-  @Override
   protected boolean supportBasicDataTypeTest() {
     return true;
   }
@@ -80,16 +88,27 @@ public class ElasticsearchStrictEncryptDestinationAcceptanceTest extends Destina
 
   @Override
   protected JsonNode getConfig() {
+    return Jsons.jsonNode(ImmutableMap.builder()
+        .put("endpoint", String.format("https://%s:%s", container.getHost(), container.getMappedPort(9200)))
+        .put("authenticationMethod", getAuthConfig())
+        .put("ca_certificate", new String(container.copyFileFromContainer(
+            "/usr/share/elasticsearch/config/certs/http_ca.crt",
+            InputStream::readAllBytes), StandardCharsets.UTF_8))
+        .build());
+  }
 
-    final JsonNode authConfig = Jsons.jsonNode(Map.of(
-        "method", "basic",
-        "username", "elastic",
-        "password", "MagicWord"));
-
+  protected JsonNode getUnsecureConfig() {
     return Jsons.jsonNode(ImmutableMap.builder()
         .put("endpoint", String.format("http://%s:%s", container.getHost(), container.getMappedPort(9200)))
-        .put("authenticationMethod", authConfig)
+        .put("authenticationMethod", getAuthConfig())
         .build());
+  }
+
+  protected JsonNode getAuthConfig() {
+    return Jsons.jsonNode(Map.of(
+        "method", "basic",
+        "username", "elastic",
+        "password", "s3cret"));
   }
 
   @Override
@@ -99,10 +118,10 @@ public class ElasticsearchStrictEncryptDestinationAcceptanceTest extends Destina
   }
 
   @Override
-  protected List<JsonNode> retrieveRecords(DestinationAcceptanceTest.TestDestinationEnv testEnv,
-                                           String streamName,
-                                           String namespace,
-                                           JsonNode streamSchema)
+  protected List<JsonNode> retrieveRecords(final DestinationAcceptanceTest.TestDestinationEnv testEnv,
+                                           final String streamName,
+                                           final String namespace,
+                                           final JsonNode streamSchema)
       throws IOException {
     // Records returned from this method will be compared against records provided to the connector
     // to verify they were written correctly
@@ -111,17 +130,22 @@ public class ElasticsearchStrictEncryptDestinationAcceptanceTest extends Destina
         .setStreamName(streamName)
         .getIndexName();
 
-    ElasticsearchConnection connection = new ElasticsearchConnection(mapper.convertValue(getConfig(), ConnectorConfiguration.class));
+    final ElasticsearchConnection connection = new ElasticsearchConnection(mapper.convertValue(getConfig(), ConnectorConfiguration.class));
     return connection.getRecords(indexName);
   }
 
   @Override
-  protected void setup(DestinationAcceptanceTest.TestDestinationEnv testEnv) {}
+  protected void setup(final TestDestinationEnv testEnv, HashSet<String> TEST_SCHEMAS) {}
 
   @Override
-  protected void tearDown(DestinationAcceptanceTest.TestDestinationEnv testEnv) {
-    ElasticsearchConnection connection = new ElasticsearchConnection(mapper.convertValue(getConfig(), ConnectorConfiguration.class));
+  protected void tearDown(final TestDestinationEnv testEnv) {
+    final ElasticsearchConnection connection = new ElasticsearchConnection(mapper.convertValue(getConfig(), ConnectorConfiguration.class));
     connection.allIndices().forEach(connection::deleteIndexIfPresent);
+  }
+
+  @Test
+  public void testCheckConnectionInvalidHttpProtocol() throws Exception {
+    assertEquals(Status.FAILED, runCheck(getUnsecureConfig()).getStatus());
   }
 
 }

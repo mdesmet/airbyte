@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 
@@ -10,7 +10,6 @@ from airbyte_cdk.models import AirbyteStream
 
 
 class WriteBufferMixin:
-
     # Default instance of AirbyteLogger
     logger = AirbyteLogger()
     # intervals after which the records_buffer should be cleaned up for selected stream

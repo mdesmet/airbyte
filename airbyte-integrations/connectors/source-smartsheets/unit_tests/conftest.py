@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 import json
@@ -8,6 +8,7 @@ from unittest.mock import Mock
 
 import pytest
 from smartsheet.models import Sheet
+
 
 HERE = Path(__file__).parent.absolute()
 
@@ -20,7 +21,7 @@ def response_mock():
 
 @pytest.fixture
 def config():
-    return {"spreadsheet_id": "id", "access_token": "token"}
+    return {"spreadsheet_id": "id", "credentials": {"access_token": "token"}, "metadata_fields": ["row_id"]}
 
 
 @pytest.fixture

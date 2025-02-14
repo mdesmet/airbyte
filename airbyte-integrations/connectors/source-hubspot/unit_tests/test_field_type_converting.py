@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 import pytest
@@ -37,7 +37,6 @@ def test_field_type_format_converting(field_type, expected):
     ],
 )
 def test_bad_field_type_converting(field_type, expected, caplog, capsys):
-
     assert Stream._get_field_props(field_type=field_type) == expected
 
     logs = caplog.records
@@ -70,6 +69,9 @@ def test_bad_field_type_converting(field_type, expected, caplog, capsys):
         (["null", "integer"], "some_field", "", None, None),
         (["null", "object"], "some_field", "", None, None),
         (["null", "boolean"], "some_field", "", None, None),
+        # when string needs to be cast as booleans
+        (["null", "boolean"], "some_field", "false", None, False),
+        (["null", "boolean"], "some_field", "true", None, True),
         # Test casting fields with format specified
         (["null", "string"], "some_field", "", "date-time", None),
         (["string"], "some_field", "", "date-time", ""),

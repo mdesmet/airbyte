@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 
@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import Any, Iterable, Mapping, MutableMapping, Optional, Union
 
 import requests
+
 from airbyte_cdk.sources.streams.http import HttpStream
 from airbyte_cdk.sources.streams.http.auth.core import HttpAuthenticator
 
@@ -93,7 +94,6 @@ class CartStream(HttpStream, ABC):
 
 
 class IncrementalCartStream(CartStream, ABC):
-
     state_checkpoint_interval = 1000
     cursor_field = "updated_at"
 
@@ -162,7 +162,7 @@ class OrderItems(IncrementalCartStream):
     data_field = "items"
 
 
-class OrderStatuses(IncrementalCartStream):
+class OrderStatuses(CartStream):
     """
     Docs: https://developers.cart.com/docs/rest-api/ff5ada86bc8a0-get-order-statuses
     """

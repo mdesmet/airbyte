@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 
@@ -7,6 +7,7 @@ import pytest
 from destination_google_sheets.client import GoogleSheetsClient
 from integration_tests.test_helpers import TEST_CONFIG
 from pygsheets.client import Client as pygsheets_client
+
 
 # ----- PREPARE ENV -----
 

@@ -1,14 +1,15 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 from unittest.mock import MagicMock, Mock
 
-from airbyte_cdk.models import AirbyteStream
 from faunadb import query as q
 from faunadb.objects import Ref
 from source_fauna import SourceFauna
 from test_util import config, mock_logger
+
+from airbyte_cdk.models import AirbyteStream
 
 
 def mock_source() -> SourceFauna:

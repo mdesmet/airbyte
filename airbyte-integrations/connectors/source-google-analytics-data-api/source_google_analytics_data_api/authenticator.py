@@ -1,11 +1,12 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 import datetime
 
 import jwt
 import requests
+
 from source_google_analytics_data_api import utils
 
 

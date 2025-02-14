@@ -1,13 +1,14 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 from typing import Any, Iterable, Mapping
 
+from google.auth.exceptions import RefreshError
+
 from airbyte_cdk import AirbyteLogger
 from airbyte_cdk.destinations import Destination
 from airbyte_cdk.models import AirbyteConnectionStatus, AirbyteMessage, ConfiguredAirbyteCatalog, DestinationSyncMode, Status, Type
-from google.auth.exceptions import RefreshError
 
 from .client import GoogleSheetsClient
 from .helpers import ConnectionTest, get_spreadsheet_id, get_streams_from_catalog
@@ -40,7 +41,6 @@ class DestinationGoogleSheets(Destination):
     def write(
         self, config: Mapping[str, Any], configured_catalog: ConfiguredAirbyteCatalog, input_messages: Iterable[AirbyteMessage]
     ) -> Iterable[AirbyteMessage]:
-
         """
         Reads the input stream of messages, config, and catalog to write data to the destination.
         """

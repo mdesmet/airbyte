@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Airbyte, Inc., all rights reserved.
+# Copyright (c) 2023 Airbyte, Inc., all rights reserved.
 #
 
 
@@ -7,6 +7,12 @@ import json
 import time
 from datetime import datetime
 from typing import Dict, Generator, Optional
+
+from faunadb import _json
+from faunadb import query as q
+from faunadb.client import FaunaClient
+from faunadb.errors import FaunaError, Unauthorized
+from faunadb.objects import Ref
 
 from airbyte_cdk.logger import AirbyteLogger
 from airbyte_cdk.models import (
@@ -23,11 +29,6 @@ from airbyte_cdk.models import (
     Type,
 )
 from airbyte_cdk.sources import Source
-from faunadb import _json
-from faunadb import query as q
-from faunadb.client import FaunaClient
-from faunadb.errors import FaunaError, Unauthorized
-from faunadb.objects import Ref
 from source_fauna.serialize import fauna_doc_to_airbyte
 
 
@@ -240,8 +241,8 @@ class SourceFauna(Source):
                         type(source) is Ref
                         and source.collection() == Ref("collections")
                         # Index must have 2 values and no terms
-                        and len(index["values"]) == 2
-                        and len(index["terms"]) == 0
+                        and ("values" in index and len(index["values"]) == 2)
+                        and (("terms" in index and len(index["terms"]) == 0) or "terms" not in index)
                         # Index values must be ts and ref
                         and index["values"][0] == {"field": "ts"}
                         and index["values"][1] == {"field": "ref"}
